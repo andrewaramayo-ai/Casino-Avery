@@ -1,38 +1,42 @@
-# Casino Avery — one live online table
+# Casino Avery — Live Multiplayer Update
 
-One shared blackjack table for everyone visiting the same website URL, with up to 6 occupied seats and any number of spectators. Everyone has an independent virtual bankroll. The dealer, deck, actions, and payouts are controlled by the Node.js server and broadcast in real time over WebSockets.
+One shared live blackjack table for up to six seated players, plus spectators. The dealer and the deck run on the Node.js server. Virtual chips only: **no real money, prizes, or cashouts**.
 
-## Deploy on Render (not Netlify Drop)
+## Update your existing GitHub + Render website (same URL)
 
-1. Extract the ZIP. Upload **the files inside `casino-avery-online`** to a new GitHub repository (you should see `server.js`, `package.json`, and `public/` at its root).
-2. At https://dashboard.render.com, create a **New > Web Service** and connect the GitHub repository.
-3. Choose **Node**, **Build Command: `npm install`**, **Start Command: `npm start`**. Leave the default root directory blank if you uploaded the files at the repository root.
-4. Create the service, wait for deployment, then share the single Render HTTPS URL. The WebSocket connection is on the same domain, so no additional configuration is needed.
+1. Download and extract the ZIP. Open the `casino-avery-online` folder.
+2. Open your existing **Casino-Avery** GitHub repository and click **Add file → Upload files**.
+3. Drag in the **contents** of the extracted folder, preserving the `public/` folder and its contents. Replace the existing `server.js`, `public/index.html`, and `README.md` files. If GitHub's web uploader doesn't conveniently replace files, open each existing file, click **Edit** (pencil), paste the updated file contents, and **Commit changes**. Alternatively use GitHub Desktop to copy the updated files into your repository and **Commit → Push**.
+4. Render should deploy the new `main` commit automatically if auto-deploy is enabled. Otherwise, open your existing Render service and select **Manual Deploy → Deploy latest commit**.
+5. Wait for **Live**, refresh your original site (hard refresh: Ctrl+Shift+R), and ask friends to refresh. **Do not create another Render service.**
 
-You can choose another Node.js hosting provider that supports persistent WebSocket connections. Plans and pricing vary by provider.
+For easier ongoing updates, **GitHub Desktop** (https://desktop.github.com/) is recommended: clone the repository, overwrite the changed files in that local folder, commit, then push.
 
-## Run locally
+### Important
+
+A deployment restarts the running Node service: active hands, seats, and virtual balances reset. Warn friends and deploy between games. The software is not yet backed by a database.
+
+## New table features
+
+- **30-second turn countdown**. Timer resets each time a player hits without busting, and at every new turn. On expiry the server automatically stands.
+- **Disconnected players:** their active-turn timer is shortened to at most 8 seconds. Reconnecting with the same browser token resumes their seat.
+- **Host controls:** first seated connected player becomes host. Host can remove a player **between rounds**. Host role transfers to another connected seated player if the host disconnects.
+- **S17/H17 switch:** host chooses whether the dealer **stands on soft 17** (default) or **hits soft 17**, between rounds.
+- **Perfect Pairs** side bet: based on each player's first two cards, paying 6:1 mixed suit color, 12:1 same color, or 25:1 identical rank/suit.
+- **21+3** side bet: player's first two cards + dealer's upcard. Flush pays 5:1, straight 10:1, three of a kind 30:1, straight flush 40:1. Highest qualifying category only. A-2-3 and Q-K-A straights are supported.
+- Side bets are optional whole-dollar amounts from $0 to $500 each and are deducted and settled independently of the main hand. Winnings return the original side-bet stake in addition to the listed odds.
+
+## Existing game rules
+
+- Six-deck shoe, blackjack pays 3:2, dealer hits through 16.
+- Double down on any first two cards; split equal-rank pairs up to four hands per player. Split aces receive one card each and split 21 is not a natural blackjack.
+- One public shared table; each seat has its own temporary bankroll.
+
+## Running locally
 
 ```sh
 npm install
 npm start
 ```
-Open http://localhost:3000 on your own computer. Friends on other networks cannot reach your localhost; you need to deploy the Node server for online play.
 
-## How to play
-
-- Enter a display name, then choose an available seat.
-- Set an affordable virtual wager for your seat.
-- Anyone seated can select **Deal everyone in** once at least one valid wager has been placed.
-- On your turn, use Hit / Stand / Double / Split. Everyone sees the same cards and outcomes.
-- When the round finishes, anyone seated can open the next round. You can reset your own bankroll between rounds.
-- If you disconnect, your seat is kept for approximately 90 seconds so you can reconnect from the same browser. If you disconnect during an active round, the server keeps your seat until the round finishes.
-
-## Limitations
-
-- No real-money betting, prizes, accounts, or payouts.
-- The server holds table state in memory. **Restarting the server resets everyone's bankroll, seating, and current hand.** Persistent storage can be added later.
-- One shared table only, with a maximum of six seated players. No private rooms.
-- Voice lines use browser text-to-speech when enabled; they are not recordings of the person in the picture.
-- Browser audio generally needs a click before it will play.
-- Deploying to a public host requires your own hosting/GitHub accounts. This ZIP is not itself a live public URL.
+Open http://localhost:3000. The public website requires a Node.js host with WebSocket support (such as Render). Voice uses device text-to-speech and may not sound like the portrait subject.
